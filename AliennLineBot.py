@@ -14,10 +14,12 @@ handler = WebhookHandler('1940915c9e9e8d423a3b5ca0cf781669')
 
 @app.route("/")
 def hello_world():
+    print("hello world!")
     return "<p>Hello!</p>"
 
 @app.route("/callback", methods=["POST"])
 def callback():
+    print("callback")
     signature = request.headers["X-Line-Signature"]
     body = request.get_data(as_text=True)
     try:
@@ -29,6 +31,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     text = str(event.message.text)
+    print("handling message: " + text)
     resp = []
     
     if "j" == text.lower() or "job" == text.lower() or "jobs" == text.lower() or "jobseeker" == text.lower():
@@ -40,6 +43,10 @@ def handle_message(event):
             googleResult = "Google results:\n"
             googleResult += js.seekGoogle()
             resp.append(TextSendMessage(googleResult))
+            
+            microsoftResult = "Microsoft results:\n"
+            microsoftResult += js.seekMicrosoft()
+            resp.append(TextSendMessage(microsoftResult))
             
             print("Sending " + str(len(resp)) + " resp message.")
             lineBotApi.reply_message(event.reply_token, resp)
